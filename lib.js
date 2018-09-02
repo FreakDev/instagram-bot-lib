@@ -66,6 +66,9 @@ module.exports = function(config) {
          *
          */
         let routes = require("./routes/strategies");
+        if (config.extend_strategies) {
+            Object.assign(routes, require(config.extend_strategies))   
+        }
         let utils = require("./modules/common/utils")(bot, config);
         let Log = require("./modules/logger/Log");
         let log = new Log("switch_mode", config);
