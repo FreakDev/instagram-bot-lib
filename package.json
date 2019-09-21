@@ -44,7 +44,7 @@
     "colors": "^1.2.1",
     "eslint": "^4.19.1",
     "path": "^0.12.7",
-    "puppeteer": "1.4.0",
+    "puppeteer": "^1.20.0",
     "request": "^2.85.0"
   },
   "engines": {
