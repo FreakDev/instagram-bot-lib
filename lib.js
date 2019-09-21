@@ -28,7 +28,7 @@ module.exports = function(config) {
         var bot = null;
         let config = this.config;
         const puppeteer = require("puppeteer");
-        const readline = require('readline');
+        const readline = require("readline");
         const LOG = require("./modules/logger/types");
         let browser = null;
 
@@ -42,20 +42,30 @@ module.exports = function(config) {
         if(config.ui === true){
             config = check.fixui(config);
         }
+
         config = check.default_config(config);
+
+        const chrome_options = ["--disable-gpu", "--no-sandbox", "--window-size=" + config.viewport.width + "x" + config.viewport.height];
+
         if (config.executable_path === "" || config.executable_path === false) {
             browser = await puppeteer.launch({
                 headless: config.chrome_headless,
-                args: config.chrome_options
+                args: chrome_options,
             });
         } else {
             browser = await puppeteer.launch({
                 headless: config.chrome_headless,
-                args: config.chrome_options,
+                args: chrome_options,
                 executablePath: config.executable_path
             });
         }
         bot = await browser.newPage();
+
+        bot.setViewport({
+            width: parseInt(config.viewport.width),
+            height: parseInt(config.viewport.height),
+            "deviceScaleFactor": 1,
+        });
 
         /**
          * Import libs
