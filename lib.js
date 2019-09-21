@@ -28,7 +28,7 @@ module.exports = function(config) {
         var bot = null;
         let config = this.config;
         const puppeteer = require("puppeteer");
-        const version = require("./version");
+        const readline = require('readline');
         const LOG = require("./modules/logger/types");
         let browser = null;
 
@@ -43,8 +43,6 @@ module.exports = function(config) {
             config = check.fixui(config);
         }
         config = check.default_config(config);
-        check.donate();
-        check.check_updates(version.version);
         if (config.executable_path === "" || config.executable_path === false) {
             browser = await puppeteer.launch({
                 headless: config.chrome_headless,
@@ -72,8 +70,6 @@ module.exports = function(config) {
         let utils = require("./modules/common/utils")(bot, config);
         let Log = require("./modules/logger/Log");
         let log = new Log("switch_mode", config);
-        let login = require("./modules/mode/login.js")(bot, config, utils);
-        let twofa = require("./modules/mode/2fa.js")(bot, config, utils);
 
         /**
          * Switch Mode
@@ -81,7 +77,7 @@ module.exports = function(config) {
          * Switch social algorithms, change algorithm from config.js
          *
          */
-        async function switch_mode() {
+        async function launch() {
             let strategy = routes[config.bot_mode];
             if (strategy !== undefined) {
                 await strategy(bot, config, utils).start();
@@ -90,34 +86,24 @@ module.exports = function(config) {
             }
         }
 
-        /**
-         * Start Bot (flow) 
-         * =====================
-         * Login --> 2FA (bad location) --> 2FA (sms pin) --> social algorithm from config.js
-         *
-         */
-        await login.start();
+        async function login () {
+            return new Promise(function (resolve) {
+                const rl = readline.createInterface({
+                    input: process.stdin,
+                    output: process.stdout
+                });
 
-        if (login.is_ok()) {
-            await twofa.start_twofa_location_check();
-
-            if (twofa.is_error()) {
-                await twofa.start_twofa_check();
-            }
-
-            if (twofa.is_ok()) {
-                await twofa.start_twofa_location();
-            } else if (twofa.is_ok_nextverify()) {
-                await twofa.start();
-                if (twofa.is_ok()) {
-                    await switch_mode();
-                }
-            } else {
-                await switch_mode();
-            }
-
-            //await bot.close();
+                bot.goto("https://www.instagram.com/accounts/login/");
+        
+                rl.question("Login to instagram, then press enter here", () => {              
+                    rl.close();
+                    resolve();
+                });    
+            });
         }
 
+        await login();
+
+        launch();
     };
 };
