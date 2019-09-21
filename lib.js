@@ -45,16 +45,16 @@ module.exports = function(config) {
 
         config = check.default_config(config);
 
-        const chrome_options = ["--disable-gpu", "--no-sandbox", "--window-size=" + config.viewport.width + "x" + config.viewport.height];
+        const chrome_options = ["--no-sandbox", "--disable-infobars"]; //"--window-size=" + config.viewport.width + "x" + config.viewport.height];
 
         if (config.executable_path === "" || config.executable_path === false) {
             browser = await puppeteer.launch({
-                headless: config.chrome_headless,
+                headless: false,
                 args: chrome_options,
             });
         } else {
             browser = await puppeteer.launch({
-                headless: config.chrome_headless,
+                headless: false,
                 args: chrome_options,
                 executablePath: config.executable_path
             });
